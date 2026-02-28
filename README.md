@@ -13,8 +13,8 @@ Standard clinical models often treat medical codes as a static "bag-of-words." T
 `[START] -> [Δt_0] -> [ATC_1] -> [Δt_1] -> [ATC_2] ... [END]`
 
 * **ATC Tokens:** Represent specific medication classes (Anatomical Therapeutic Chemical Classification System).
-* **Time Tokens ($\Delta t$):** Represent discretized time bins between prescriptions (e.g., "0–7 days", "1 month").
-* **Self-Supervised Learning:** By predicting the next token, the model learns the underlying patterns of polypharmacy and disease progression without requiring manual labels.
+* **Time Tokens ($\Delta t$):** Represent discretized time bins between prescriptions.
+* **Self-Supervised Learning:** By predicting the next token, the model learns the underlying patterns of polypharmacy and disease progression.
 
 
 
@@ -24,10 +24,13 @@ Standard clinical models often treat medical codes as a static "bag-of-words." T
 
 The core of the system is a **SimpleGPT** model featuring:
 
+* **Positional Encoding:** Added directly to the token embeddings to provide the model with information about the relative or absolute position of medications in the sequence.
 * **Causal Self-Attention:** Uses a triangular mask to ensure that at any position $t$, the model can only attend to past events ($<t$), preventing information leakage from the "future."
+
 * **Transformer Decoder Blocks:** Multiple layers featuring:
     * **Multi-Head Attention:** To find correlations between medications separated by long time gaps.
     * **Pre-Normalization:** `LayerNorm` is applied before attention and MLP blocks for more stable training.
+    * **Residual Connections & Dropout:** Each sub-block (attention and MLP) uses residual additions ($x + \text{SubLayer}(x)$) and dropout layers to improve gradient flow and prevent overfitting.
     * **Position-wise Feed-Forward Networks (MLP):** Two linear layers with ReLU activation.
 * **Contextual Embeddings:** A dedicated `extract_hidden()` method pulls the final hidden states (the "thought vectors") for tasks like patient clustering or risk stratification.
 
@@ -39,8 +42,7 @@ The core of the system is a **SimpleGPT** model featuring:
 * **ID & Chunk Tracking:** Maps chunk-level embeddings back to unique patient IDs for aggregated analysis.
 * **Phenotype Validation:** Includes scripts to validate embeddings by color-coding patients based on clinical labels (e.g., Metabolic Diseases via ICD-10 "DE" codes).
 * **Early Stopping:** Automatically halts training when validation loss plateaus to prevent overfitting.
-* **Flexible Configuration:** All hyperparameters are managed via a single `YAML` file.
-
+* **YAML Configuration:** All hyperparameters (embedding dimension, number of heads, layers, dropout, learning rate, etc.) are centralized in a `config.yaml` file for easy experimentation.
 ---
 
 ## 🛠️ Usage Guide
@@ -66,8 +68,8 @@ The model projects complex, years-long medication histories into a 2D space. The
 ### File Outputs
 All results are saved to the gpt_train_results/ directory:
 
-* best_model.pt: The trained model weights, optimizer state, and configuration.
+* **best_model.pt:** The trained model weights, optimizer state, and configuration.
 
-* loss_epoch_N.png: Visualizations of training and validation loss curves.
+* **loss_epoch_N.png:** Visualizations of training and validation loss curves.
 
-* tsne_metabolic_distinction.png: A 2D projection showing the clinical separation between patient groups.
+* **tsne_metabolic_distinction.png:** A 2D projection showing the clinical separation between patient groups.
