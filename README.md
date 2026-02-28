@@ -30,7 +30,7 @@ The core of the system is a **SimpleGPT** model featuring:
 * **Transformer Decoder Blocks:** Multiple layers featuring:
     * **Multi-Head Attention:** To find correlations between medications separated by long time gaps.
     * **Pre-Normalization:** `LayerNorm` is applied before attention and MLP blocks for more stable training.
-    * **Residual Connections & Dropout:** Each sub-block (attention and MLP) uses residual additions ($x + \text{SubLayer}(x)$) and dropout layers to improve gradient flow and prevent overfitting.
+    * **Residual Connections & Dropout:** Each sub-block (attention and MLP) uses residual connections and dropout layers to improve gradient flow and prevent overfitting.
     * **Position-wise Feed-Forward Networks (MLP):** Two linear layers with ReLU activation.
 * **Contextual Embeddings:** A dedicated `extract_hidden()` method pulls the final hidden states (the "thought vectors") for tasks like patient clustering or risk stratification.
 
